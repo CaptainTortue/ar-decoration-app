@@ -1,0 +1,24 @@
+<?php
+
+namespace Database\Factories;
+
+use App\Models\Project;
+use App\Models\User;
+use Illuminate\Database\Eloquent\Factories\Factory;
+
+class ProjectFactory extends Factory
+{
+    protected $model = Project::class;
+
+    public function definition(): array
+    {
+        return [
+            'user_id'        => User::factory(),
+            'name'           => fake()->words(3, true),
+            'description'    => fake()->sentence(),
+            'thumbnail_path' => null,
+            'status'         => fake()->randomElement(['draft', 'in_progress', 'completed']),
+            'scene_settings' => null,
+        ];
+    }
+}
