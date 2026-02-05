@@ -1,0 +1,784 @@
+{
+	"info": {
+		"name": "AR Decoration API",
+		"description": "Collection Postman pour l'API de l'application AR Decoration.\n\n## Authentification\nL'API utilise Laravel Sanctum. Pour les routes protégées :\n1. Exécuter la requête **Login** dans le dossier Auth\n2. Le token sera automatiquement sauvegardé dans la variable `{{token}}`\n3. Les requêtes protégées utilisent ce token via le header Authorization\n\n## Routes publiques\n- Categories (lecture)\n- Furniture Objects (lecture, filtrage, recherche)\n\n## Routes protégées\n- Projects (CRUD)\n- Rooms (CRUD imbriqué dans un projet)\n- Project Objects (CRUD imbriqué dans un projet)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://ar-decoration-app.test/api"
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "projectId",
+			"value": "1"
+		},
+		{
+			"key": "objectId",
+			"value": "1"
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"description": "Authentification et gestion des tokens Sanctum.",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/../register",
+							"host": ["{{baseUrl}}"],
+							"path": ["..", "register"]
+						},
+						"description": "Créer un nouveau compte utilisateur."
+					}
+				},
+				{
+					"name": "Login (Get Sanctum Token)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.token) {",
+									"    pm.collectionVariables.set('token', jsonData.token);",
+									"    console.log('Token saved:', jsonData.token);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password\",\n    \"device_name\": \"postman\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/sanctum/token",
+							"host": ["{{baseUrl}}"],
+							"path": ["sanctum", "token"]
+						},
+						"description": "Obtenir un token Sanctum. Le token est automatiquement sauvegardé dans la variable {{token}}."
+					}
+				},
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/user",
+							"host": ["{{baseUrl}}"],
+							"path": ["user"]
+						},
+						"description": "Récupérer les informations de l'utilisateur connecté."
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"description": "Bibliothèque de catégories (routes publiques).",
+			"item": [
+				{
+					"name": "List All Categories",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories"]
+						},
+						"description": "Liste toutes les catégories principales avec leurs sous-catégories."
+					}
+				},
+				{
+					"name": "Show Category",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/categories/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories", "1"]
+						},
+						"description": "Affiche une catégorie avec ses enfants et ses objets.\n\nExemples d'IDs :\n- 1 = Meubles\n- 2 = Luminaires\n- 3 = Décoration\n- 4 = Tables\n- 5 = Assises\n- 7 = Rangements"
+					}
+				}
+			]
+		},
+		{
+			"name": "Furniture Objects",
+			"description": "Bibliothèque d'objets 3D (routes publiques).",
+			"item": [
+				{
+					"name": "List All Objects",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects"]
+						},
+						"description": "Liste tous les objets actifs avec pagination (20 par page par défaut)."
+					}
+				},
+				{
+					"name": "List Objects - Filter by Category ID",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects?category_id=4",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects"],
+							"query": [
+								{
+									"key": "category_id",
+									"value": "4",
+									"description": "4 = Tables"
+								}
+							]
+						},
+						"description": "Filtrer les objets par ID de catégorie.\n\nExemples : 4=Tables, 5=Assises, 7=Rangements, 8=Lampes, 11=Plantes"
+					}
+				},
+				{
+					"name": "List Objects - Filter by Category Slug",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects?category=rangements",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects"],
+							"query": [
+								{
+									"key": "category",
+									"value": "rangements",
+									"description": "Slug de la catégorie"
+								}
+							]
+						},
+						"description": "Filtrer les objets par slug de catégorie.\n\nExemples : tables, assises, canapes, rangements, lampes, plafonniers, appliques, plantes, vases"
+					}
+				},
+				{
+					"name": "List Objects - Search by Name",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects?search=lampe",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects"],
+							"query": [
+								{
+									"key": "search",
+									"value": "lampe",
+									"description": "Recherche par nom"
+								}
+							]
+						},
+						"description": "Rechercher des objets par nom (recherche partielle)."
+					}
+				},
+				{
+					"name": "List Objects - With Pagination",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects?per_page=5&page=1",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects"],
+							"query": [
+								{
+									"key": "per_page",
+									"value": "5",
+									"description": "Nombre d'éléments par page"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Numéro de page"
+								}
+							]
+						},
+						"description": "Paginer les résultats."
+					}
+				},
+				{
+					"name": "Show Object",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects", "1"]
+						},
+						"description": "Affiche le détail d'un objet 3D avec sa catégorie."
+					}
+				}
+			]
+		},
+		{
+			"name": "Projects",
+			"description": "Gestion des projets d'aménagement (routes protégées).",
+			"item": [
+				{
+					"name": "List My Projects",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects"]
+						},
+						"description": "Liste tous les projets de l'utilisateur connecté."
+					}
+				},
+				{
+					"name": "Create Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('projectId', jsonData.data.id);",
+									"    console.log('Project ID saved:', jsonData.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Salon Moderne\",\n    \"description\": \"Aménagement du salon avec mobilier contemporain\",\n    \"status\": \"draft\",\n    \"scene_settings\": {\n        \"ambient_light\": 0.5,\n        \"background_color\": \"#f5f5f5\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects"]
+						},
+						"description": "Créer un nouveau projet. L'ID est automatiquement sauvegardé dans {{projectId}}.\n\nStatuts possibles : draft, in_progress, completed"
+					}
+				},
+				{
+					"name": "Show Project",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}"]
+						},
+						"description": "Affiche un projet avec sa pièce et tous ses objets placés."
+					}
+				},
+				{
+					"name": "Update Project",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Salon Moderne - v2\",\n    \"status\": \"in_progress\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}"]
+						},
+						"description": "Mettre à jour un projet existant. Seuls les champs envoyés sont modifiés."
+					}
+				},
+				{
+					"name": "Delete Project",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}"]
+						},
+						"description": "Supprimer un projet et toutes ses données associées (pièce, objets)."
+					}
+				}
+			]
+		},
+		{
+			"name": "Rooms",
+			"description": "Gestion de la pièce d'un projet (routes protégées).",
+			"item": [
+				{
+					"name": "Create / Replace Room",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"Salon principal\",\n    \"width\": 5.50,\n    \"length\": 4.20,\n    \"height\": 2.50,\n    \"floor_material\": \"Parquet chêne\",\n    \"floor_color\": \"#c4a882\",\n    \"wall_material\": \"Peinture mate\",\n    \"wall_color\": \"#f5f0eb\",\n    \"lighting_settings\": {\n        \"ambient_intensity\": 0.6,\n        \"directional_intensity\": 0.8,\n        \"shadows\": true\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/room",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "room"]
+						},
+						"description": "Créer ou remplacer la pièce d'un projet. Si une pièce existe déjà, elle est supprimée et remplacée."
+					}
+				},
+				{
+					"name": "Show Room",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/room",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "room"]
+						},
+						"description": "Affiche la pièce d'un projet."
+					}
+				},
+				{
+					"name": "Update Room",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"wall_color\": \"#e8e0d5\",\n    \"lighting_settings\": {\n        \"ambient_intensity\": 0.7,\n        \"directional_intensity\": 0.9,\n        \"shadows\": true\n    }\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/room",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "room"]
+						},
+						"description": "Met à jour partiellement la pièce d'un projet."
+					}
+				},
+				{
+					"name": "Delete Room",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/room",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "room"]
+						},
+						"description": "Supprimer la pièce d'un projet."
+					}
+				}
+			]
+		},
+		{
+			"name": "Project Objects",
+			"description": "Gestion des objets placés dans un projet (routes protégées).",
+			"item": [
+				{
+					"name": "List Objects in Project",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/objects",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "objects"]
+						},
+						"description": "Liste tous les objets placés dans un projet."
+					}
+				},
+				{
+					"name": "Add Object to Project",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    pm.collectionVariables.set('objectId', jsonData.data.id);",
+									"    console.log('Object ID saved:', jsonData.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"furniture_object_id\": 1,\n    \"position_x\": 2.5,\n    \"position_y\": 0,\n    \"position_z\": 1.8,\n    \"rotation_x\": 0,\n    \"rotation_y\": 45,\n    \"rotation_z\": 0,\n    \"scale_x\": 1.0,\n    \"scale_y\": 1.0,\n    \"scale_z\": 1.0,\n    \"color\": \"Chêne naturel\",\n    \"material\": \"Bois massif\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/objects",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "objects"]
+						},
+						"description": "Ajouter un objet de la bibliothèque dans le projet.\n\nfurniture_object_id correspond à l'ID d'un objet dans furniture_objects :\n- 1 = Table à manger\n- 2 = Table basse\n- 3 = Chaise\n- 5 = Canapé 3 places\n- 6 = Étagère 5 niveaux\n- 9 = Lampe de bureau\n- 13 = Pot de plante"
+					}
+				},
+				{
+					"name": "Add Second Object (Chaise)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.data && jsonData.data.id) {",
+									"    console.log('Second Object ID:', jsonData.data.id);",
+									"}"
+								]
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"furniture_object_id\": 3,\n    \"position_x\": 2.5,\n    \"position_y\": 0,\n    \"position_z\": 0.8,\n    \"rotation_x\": 0,\n    \"rotation_y\": 180,\n    \"rotation_z\": 0,\n    \"color\": \"Blanc\",\n    \"material\": \"Plastique\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/objects",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "objects"]
+						},
+						"description": "Exemple : ajouter une chaise face à la table."
+					}
+				},
+				{
+					"name": "Show Object in Project",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/objects/{{objectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "objects", "{{objectId}}"]
+						},
+						"description": "Voir le détail d'un objet placé dans le projet."
+					}
+				},
+				{
+					"name": "Move / Rotate Object",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"position_x\": 3.0,\n    \"position_z\": 2.0,\n    \"rotation_y\": 90\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/objects/{{objectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "objects", "{{objectId}}"]
+						},
+						"description": "Déplacer et/ou faire pivoter un objet. Seuls les champs envoyés sont modifiés."
+					}
+				},
+				{
+					"name": "Scale Object",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scale_x\": 1.5,\n    \"scale_y\": 1.5,\n    \"scale_z\": 1.5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/objects/{{objectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "objects", "{{objectId}}"]
+						},
+						"description": "Changer l'échelle d'un objet (agrandir / réduire)."
+					}
+				},
+				{
+					"name": "Lock / Hide Object",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"is_locked\": true,\n    \"is_visible\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/objects/{{objectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "objects", "{{objectId}}"]
+						},
+						"description": "Verrouiller ou masquer un objet dans la scène."
+					}
+				},
+				{
+					"name": "Delete Object from Project",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/projects/{{projectId}}/objects/{{objectId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["projects", "{{projectId}}", "objects", "{{objectId}}"]
+						},
+						"description": "Supprimer un objet du projet."
+					}
+				}
+			]
+		}
+	]
+}
