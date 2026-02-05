@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(php:*)"
+      "Bash(php:*)",
+      "Bash(C:/laragon/bin/php/php-8.5.2-Win32-vs17-x64/php.exe:*)",
+      "Bash(C:/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysql.exe:*)"
     ]
   }
 }
