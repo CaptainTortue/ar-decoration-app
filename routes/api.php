@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\FurnitureObjectController;
 use App\Http\Controllers\Api\ProjectController;
@@ -11,6 +12,9 @@ use Illuminate\Support\Facades\Route;
 // ─────────────────────────────────────────────────────────────
 //  Routes publiques (pas d'authentification requise)
 // ─────────────────────────────────────────────────────────────
+
+// Authentification API
+Route::post('/login', [AuthController::class, 'login']);
 
 // Bibliothèque d'objets — lecture seule
 Route::get('/categories', [CategoryController::class, 'index']);
@@ -28,6 +32,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
+    // Déconnexion API
+    Route::post('/logout', [AuthController::class, 'logout']);
 
     // Projets — CRUD complet
     Route::apiResource('projects', ProjectController::class);

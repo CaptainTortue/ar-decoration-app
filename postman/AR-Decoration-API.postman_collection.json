@@ -35,34 +35,8 @@
 	"item": [
 		{
 			"name": "Auth",
-			"description": "Authentification et gestion des tokens Sanctum.",
+			"description": "Authentification et gestion des tokens Sanctum.\n\n1. Exécuter **Login** pour obtenir un token\n2. Le token est automatiquement sauvegardé dans {{token}}\n3. Toutes les requêtes protégées l'utilisent automatiquement",
 			"item": [
-				{
-					"name": "Register",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"name\": \"Test User\",\n    \"email\": \"test@example.com\",\n    \"password\": \"password\",\n    \"password_confirmation\": \"password\"\n}"
-						},
-						"url": {
-							"raw": "{{baseUrl}}/../register",
-							"host": ["{{baseUrl}}"],
-							"path": ["..", "register"]
-						},
-						"description": "Créer un nouveau compte utilisateur."
-					}
-				},
 				{
 					"name": "Login (Get Sanctum Token)",
 					"event": [
@@ -100,11 +74,11 @@
 							"raw": "{\n    \"email\": \"test@example.com\",\n    \"password\": \"password\",\n    \"device_name\": \"postman\"\n}"
 						},
 						"url": {
-							"raw": "{{baseUrl}}/sanctum/token",
+							"raw": "{{baseUrl}}/login",
 							"host": ["{{baseUrl}}"],
-							"path": ["sanctum", "token"]
+							"path": ["login"]
 						},
-						"description": "Obtenir un token Sanctum. Le token est automatiquement sauvegardé dans la variable {{token}}."
+						"description": "Obtenir un token Sanctum via POST /api/login.\nLe token est automatiquement sauvegardé dans la variable {{token}}.\n\nCompte de test :\n- Email : test@example.com\n- Password : password"
 					}
 				},
 				{
@@ -122,7 +96,25 @@
 							"host": ["{{baseUrl}}"],
 							"path": ["user"]
 						},
-						"description": "Récupérer les informations de l'utilisateur connecté."
+						"description": "Récupérer les informations de l'utilisateur connecté. Nécessite un token valide."
+					}
+				},
+				{
+					"name": "Logout (Revoke Token)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/logout",
+							"host": ["{{baseUrl}}"],
+							"path": ["logout"]
+						},
+						"description": "Révoquer le token courant (déconnexion API)."
 					}
 				}
 			]
