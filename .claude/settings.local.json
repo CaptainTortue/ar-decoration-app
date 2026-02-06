@@ -6,7 +6,8 @@
       "Bash(C:/laragon/bin/mysql/mysql-8.0.30-winx64/bin/mysql.exe:*)",
       "WebFetch(domain:sketchfab.com)",
       "Bash(curl:*)",
-      "Bash(TOKEN=\"1|ptirpo7v7kGN9TQJ3YiVeJNOO6JvXNbDUcNZFPzI1cc58f7c\")"
+      "Bash(TOKEN=\"1|ptirpo7v7kGN9TQJ3YiVeJNOO6JvXNbDUcNZFPzI1cc58f7c\")",
+      "WebFetch(domain:filamentphp.com)"
     ]
   }
 }

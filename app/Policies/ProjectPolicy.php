@@ -8,11 +8,19 @@ use App\Models\User;
 class ProjectPolicy
 {
     /**
-     * L'utilisateur ne peut voir que ses propres projets.
+     * Les admins peuvent tout voir, les users seulement leurs projets.
+     */
+    public function viewAny(User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * Les admins peuvent voir tous les projets, les users seulement les leurs.
      */
     public function view(User $user, Project $project): bool
     {
-        return $user->id === $project->user_id;
+        return $user->isAdmin() || $user->id === $project->user_id;
     }
 
     /**
@@ -24,18 +32,18 @@ class ProjectPolicy
     }
 
     /**
-     * L'utilisateur ne peut modifier que ses propres projets.
+     * Les admins peuvent modifier tous les projets, les users seulement les leurs.
      */
     public function update(User $user, Project $project): bool
     {
-        return $user->id === $project->user_id;
+        return $user->isAdmin() || $user->id === $project->user_id;
     }
 
     /**
-     * L'utilisateur ne peut supprimer que ses propres projets.
+     * Les admins peuvent supprimer tous les projets, les users seulement les leurs.
      */
     public function delete(User $user, Project $project): bool
     {
-        return $user->id === $project->user_id;
+        return $user->isAdmin() || $user->id === $project->user_id;
     }
 }

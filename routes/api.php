@@ -30,7 +30,13 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Utilisateur connecté
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        $user = $request->user();
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'is_admin' => $user->is_admin,
+        ]);
     });
 
     // Déconnexion API

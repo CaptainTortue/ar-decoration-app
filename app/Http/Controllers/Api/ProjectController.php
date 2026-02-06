@@ -13,13 +13,19 @@ use Illuminate\Support\Facades\Gate;
 class ProjectController extends Controller
 {
     /**
-     * Liste les projets de l'utilisateur connecté.
+     * Liste les projets.
+     * Admin : tous les projets
+     * User : seulement ses projets
      */
     public function index(Request $request)
     {
-        $projects = $request->user()
-            ->projects()
+        $query = $request->user()->isAdmin()
+            ? Project::query()
+            : $request->user()->projects();
+
+        $projects = $query
             ->withCount('projectObjects')
+            ->with('user:id,name')
             ->orderBy('updated_at', 'desc')
             ->paginate($request->get('per_page', 15));
 
