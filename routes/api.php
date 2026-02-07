@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\AssetController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\FurnitureObjectController;
@@ -21,6 +22,30 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/categories/{category}', [CategoryController::class, 'show']);
 Route::get('/furniture-objects', [FurnitureObjectController::class, 'index']);
 Route::get('/furniture-objects/{furnitureObject}', [FurnitureObjectController::class, 'show']);
+
+// ─────────────────────────────────────────────────────────────
+//  Assets 3D — Fichiers GLB et thumbnails (publics)
+//  Accessibles par les applications front-end/VR/AR externes
+// ─────────────────────────────────────────────────────────────
+
+Route::prefix('furniture-objects/{furnitureObject}')->group(function () {
+    // Télécharger le modèle GLB
+    Route::get('/model', [AssetController::class, 'downloadModel'])
+        ->name('api.furniture-objects.model');
+
+    // Streamer le modèle GLB (support Range requests pour gros fichiers)
+    Route::get('/model/stream', [AssetController::class, 'streamModel'])
+        ->name('api.furniture-objects.model.stream');
+
+    // Télécharger la thumbnail
+    Route::get('/thumbnail', [AssetController::class, 'downloadThumbnail'])
+        ->name('api.furniture-objects.thumbnail');
+
+    // Requêtes OPTIONS pour CORS preflight
+    Route::options('/model', fn () => response('', 204));
+    Route::options('/model/stream', fn () => response('', 204));
+    Route::options('/thumbnail', fn () => response('', 204));
+});
 
 // ─────────────────────────────────────────────────────────────
 //  Routes protégées (authentification Sanctum requise)

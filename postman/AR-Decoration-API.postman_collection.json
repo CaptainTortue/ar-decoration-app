@@ -1,7 +1,7 @@
 {
 	"info": {
 		"name": "AR Decoration API",
-		"description": "Collection Postman pour l'API de l'application AR Decoration.\n\n## Authentification\nL'API utilise Laravel Sanctum. Pour les routes protégées :\n1. Exécuter la requête **Login** dans le dossier Auth\n2. Le token sera automatiquement sauvegardé dans la variable `{{token}}`\n3. Les requêtes protégées utilisent ce token via le header Authorization\n\n## Routes publiques\n- Categories (lecture)\n- Furniture Objects (lecture, filtrage, recherche)\n\n## Routes protégées\n- Projects (CRUD)\n- Rooms (CRUD imbriqué dans un projet)\n- Project Objects (CRUD imbriqué dans un projet)",
+		"description": "Collection Postman pour l'API de l'application AR Decoration.\n\n## Authentification\nL'API utilise Laravel Sanctum. Pour les routes protégées :\n1. Exécuter la requête **Login** dans le dossier Auth\n2. Le token sera automatiquement sauvegardé dans la variable `{{token}}`\n3. Les requêtes protégées utilisent ce token via le header Authorization\n\n## Routes publiques\n- Categories (lecture)\n- Furniture Objects (lecture, filtrage, recherche)\n- 3D Assets (téléchargement GLB et thumbnails)\n\n## Routes protégées\n- Projects (CRUD)\n- Rooms (CRUD imbriqué dans un projet)\n- Project Objects (CRUD imbriqué dans un projet)",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
@@ -328,6 +328,129 @@
 							"path": ["furniture-objects", "1"]
 						},
 						"description": "Affiche le détail d'un objet 3D avec sa catégorie."
+					}
+				}
+			]
+		},
+		{
+			"name": "3D Assets",
+			"description": "Téléchargement des fichiers 3D GLB et thumbnails (routes publiques).\n\nCes routes sont conçues pour les applications front-end, VR et AR.\n\n## Fonctionnalités\n- Support CORS pour les applications externes\n- Cache long terme (1 an) pour les fichiers immutables\n- Streaming avec support Range requests pour les gros fichiers GLB\n- Content-Types corrects pour chaque format",
+			"item": [
+				{
+					"name": "Download GLB Model",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "model/gltf-binary"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects/1/model",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects", "1", "model"]
+						},
+						"description": "Télécharge le fichier GLB d'un objet 3D.\n\nContent-Type: model/gltf-binary\nCache: 1 an (fichiers immutables)\nCORS: Activé pour toutes les origines\n\nRetourne 404 si :\n- L'objet n'existe pas\n- L'objet est inactif\n- Le fichier GLB n'existe pas"
+					}
+				},
+				{
+					"name": "Stream GLB Model",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "model/gltf-binary"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects/1/model/stream",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects", "1", "model", "stream"]
+						},
+						"description": "Stream le fichier GLB avec support des requêtes Range.\n\nIdéal pour les gros fichiers 3D dans les applications VR/AR.\n\nSupport HTTP Range requests :\n- Header: Range: bytes=0-1023\n- Réponse: 206 Partial Content\n- Header: Content-Range: bytes 0-1023/12345"
+					}
+				},
+				{
+					"name": "Stream GLB - Range Request",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "model/gltf-binary"
+							},
+							{
+								"key": "Range",
+								"value": "bytes=0-1023"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects/1/model/stream",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects", "1", "model", "stream"]
+						},
+						"description": "Exemple de requête Range pour télécharger partiellement un fichier GLB.\n\nRetourne HTTP 206 Partial Content avec le header Content-Range."
+					}
+				},
+				{
+					"name": "Download Thumbnail",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "image/*"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects/1/thumbnail",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects", "1", "thumbnail"]
+						},
+						"description": "Télécharge la thumbnail d'un objet 3D.\n\nContent-Type automatique selon l'extension :\n- .webp → image/webp\n- .png → image/png\n- .jpg/.jpeg → image/jpeg\n- .gif → image/gif\n- .svg → image/svg+xml\n\nCache: 1 an\nCORS: Activé"
+					}
+				},
+				{
+					"name": "CORS Preflight - Model",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "OPTIONS",
+						"header": [
+							{
+								"key": "Origin",
+								"value": "http://localhost:3000"
+							},
+							{
+								"key": "Access-Control-Request-Method",
+								"value": "GET"
+							},
+							{
+								"key": "Access-Control-Request-Headers",
+								"value": "Authorization"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/furniture-objects/1/model",
+							"host": ["{{baseUrl}}"],
+							"path": ["furniture-objects", "1", "model"]
+						},
+						"description": "Requête CORS preflight (OPTIONS) pour tester la configuration CORS.\n\nUtile pour débugger les problèmes CORS depuis une application front-end."
 					}
 				}
 			]

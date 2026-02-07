@@ -17,8 +17,18 @@ class FurnitureObjectResource extends JsonResource
             'description'         => $this->description,
             'category_id'         => $this->category_id,
             'category'            => new CategoryResource($this->whenLoaded('category')),
+
+            // URLs pour accès direct via le stockage public (legacy)
             'model_url'           => $this->model_path ? Storage::url($this->model_path) : null,
             'thumbnail_url'       => $this->thumbnail_path ? Storage::url($this->thumbnail_path) : null,
+
+            // URLs API sécurisées pour applications externes (VR/AR/front-end)
+            'assets' => [
+                'model'           => route('api.furniture-objects.model', $this->id),
+                'model_stream'    => route('api.furniture-objects.model.stream', $this->id),
+                'thumbnail'       => route('api.furniture-objects.thumbnail', $this->id),
+            ],
+
             'dimensions' => [
                 'width'  => $this->width,
                 'height' => $this->height,
