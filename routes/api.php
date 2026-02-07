@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 // Authentification API
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
 
 // Bibliothèque d'objets — lecture seule
 Route::get('/categories', [CategoryController::class, 'index']);
