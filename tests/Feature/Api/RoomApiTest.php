@@ -41,7 +41,7 @@ class RoomApiTest extends TestCase
 
         $response->assertCreated()
             ->assertJsonPath('data.name', 'Salon')
-            ->assertJsonPath('data.dimensions.width', '5.50')
+            ->assertJsonPath('data.width', '5.50')
             ->assertJsonPath('data.floor.material', 'Parquet');
 
         $this->assertDatabaseHas('rooms', [
