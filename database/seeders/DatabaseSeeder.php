@@ -13,19 +13,24 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Administrateur
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@example.com',
-            'is_admin' => true,
-        ]);
+        // check if users already exist to prevent duplicate seeding
+        if (User::all()->count() > 0) {
+            $this->command->info('Users already exist, skipping seeding.');
+        } else {
+            // Administrateur
+            User::factory()->create([
+                'name' => 'Admin',
+                'email' => 'admin@example.com',
+                'is_admin' => true,
+            ]);
 
-        // Utilisateur de test
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-            'is_admin' => false,
-        ]);
+            // Utilisateur de test
+            User::factory()->create([
+                'name' => 'Test User',
+                'email' => 'test@example.com',
+                'is_admin' => false,
+            ]);
+        }
 
         // Catégories puis objets
         $this->call([
