@@ -30,25 +30,6 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->environment('production')) {
             URL::forceScheme('https');
         }
-
-        // Retry de connexion DB au boot
-        $maxAttempts = 10;
-        $attempt = 0;
-
-        while ($attempt < $maxAttempts) {
-            try {
-                DB::connection()->getPdo();
-                // Log de succès de connexion
-                Log::info('Connexion à la base de données réussie après ' . ($attempt + 1) . ' tentative(s).');
-                break; // Connexion réussie
-            } catch (\Exception $e) {
-                $attempt++;
-                if ($attempt >= $maxAttempts) {
-                    throw $e; // Échec après tous les essais
-                }
-                sleep(2); // Attendre 2 secondes avant de réessayer
-            }
-        }
     }
 
     /**
