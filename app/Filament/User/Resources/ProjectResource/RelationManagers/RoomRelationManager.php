@@ -2,16 +2,20 @@
 
 namespace App\Filament\User\Resources\ProjectResource\RelationManagers;
 
+use Filament\Actions\Action;
+use Filament\Actions\ActionGroup;
+use Filament\Actions\CreateAction;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
 use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
+use Filament\Tables\Columns\Layout\Grid;
 use Filament\Tables\Table;
 
 class RoomRelationManager extends RelationManager
@@ -177,7 +181,7 @@ class RoomRelationManager extends RelationManager
                     ->color('info'),
                 Tables\Columns\TextColumn::make('surface')
                     ->label('Surface')
-                    ->getStateUsing(fn ($record) => number_format($record->width * $record->length, 2) . ' m²')
+                    ->getStateUsing(fn ($record) => number_format($record->width * $record->length, 2).' m²')
                     ->badge()
                     ->color('success'),
                 Tables\Columns\TextColumn::make('floor_material')
@@ -213,7 +217,7 @@ class RoomRelationManager extends RelationManager
                 //
             ])
             ->headerActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Configurer la pièce')
                     ->icon('heroicon-o-plus')
                     ->modalHeading('Configurer la pièce')
@@ -226,11 +230,11 @@ class RoomRelationManager extends RelationManager
                     ->visible(fn () => $this->ownerRecord->room === null),
             ])
             ->actions([
-                Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make()
+                ActionGroup::make([
+                    EditAction::make()
                         ->label('Modifier')
-                        ->modalHeading(fn ($record) => 'Modifier : ' . $record->name),
-                    Tables\Actions\Action::make('apply_preset')
+                        ->modalHeading(fn ($record) => 'Modifier : '.$record->name),
+                    Action::make('apply_preset')
                         ->label('Appliquer un modèle')
                         ->icon('heroicon-o-rectangle-stack')
                         ->color('info')
@@ -263,14 +267,14 @@ class RoomRelationManager extends RelationManager
                                 ->success()
                                 ->send();
                         }),
-                    Tables\Actions\DeleteAction::make()
+                    DeleteAction::make()
                         ->label('Supprimer la configuration')
                         ->modalHeading('Supprimer la configuration de la pièce')
                         ->modalDescription('Voulez-vous supprimer la configuration de la pièce ? Les objets du projet ne seront pas affectés, mais vous perdrez les dimensions et paramètres de la pièce.')
                         ->modalSubmitActionLabel('Oui, supprimer'),
                 ])
-                ->icon('heroicon-m-ellipsis-vertical')
-                ->tooltip('Actions'),
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->tooltip('Actions'),
             ])
             ->bulkActions([
                 //
@@ -279,7 +283,7 @@ class RoomRelationManager extends RelationManager
             ->emptyStateDescription('Configurez les dimensions et l\'apparence de votre pièce pour une meilleure visualisation.')
             ->emptyStateIcon('heroicon-o-home')
             ->emptyStateActions([
-                Tables\Actions\CreateAction::make()
+                CreateAction::make()
                     ->label('Configurer la pièce')
                     ->icon('heroicon-o-plus'),
             ])
