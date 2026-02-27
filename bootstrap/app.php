@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(prepend: [
             CorsMiddleware::class,
         ]);
+
+        // Rediriger les visiteurs non-authentifiés vers le login du panel utilisateur
+        $middleware->redirectGuestsTo('/dashboard/login');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
