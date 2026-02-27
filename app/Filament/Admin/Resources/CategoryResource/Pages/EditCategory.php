@@ -10,14 +10,14 @@ class EditCategory extends EditRecord
 {
     protected static string $resource = CategoryResource::class;
 
-    protected function getHeaderActions(): array
+    final protected function getHeaderActions(): array
     {
         return [
             Actions\DeleteAction::make(),
         ];
     }
 
-    protected function getRedirectUrl(): string
+    final protected function getRedirectUrl(): string
     {
         return $this->getResource()::getUrl('index');
     }

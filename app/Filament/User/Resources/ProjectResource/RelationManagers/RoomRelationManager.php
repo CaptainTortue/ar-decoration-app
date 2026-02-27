@@ -12,15 +12,21 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\FusedGroup;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables;
-use Filament\Tables\Columns\Layout\Grid;
 use Filament\Tables\Table;
 
 class RoomRelationManager extends RelationManager
 {
     protected static string $relationship = 'room';
+
+    // Toujours éditable, que ce soit sur la page View ou Edit
+    public function isReadOnly(): bool
+    {
+        return false;
+    }
 
     public static function getTitle($ownerRecord, string $pageClass): string
     {
@@ -51,64 +57,62 @@ class RoomRelationManager extends RelationManager
                     ->description('Définissez les dimensions en mètres')
                     ->icon('heroicon-o-arrows-pointing-out')
                     ->schema([
-                        Grid::make(3)
-                            ->schema([
-                                TextInput::make('width')
-                                    ->label('Largeur')
-                                    ->numeric()
-                                    ->step(0.01)
-                                    ->required()
-                                    ->suffix('m')
-                                    ->minValue(0.5)
-                                    ->maxValue(50)
-                                    ->placeholder('4.00'),
-                                TextInput::make('length')
-                                    ->label('Longueur')
-                                    ->numeric()
-                                    ->step(0.01)
-                                    ->required()
-                                    ->suffix('m')
-                                    ->minValue(0.5)
-                                    ->maxValue(50)
-                                    ->placeholder('5.00'),
-                                TextInput::make('height')
-                                    ->label('Hauteur')
-                                    ->numeric()
-                                    ->step(0.01)
-                                    ->required()
-                                    ->suffix('m')
-                                    ->minValue(1.5)
-                                    ->maxValue(10)
-                                    ->default(2.50)
-                                    ->placeholder('2.50'),
-                            ]),
+                        FusedGroup::make([
+                            TextInput::make('width')
+                                ->label('Largeur')
+                                ->numeric()
+                                ->step(0.01)
+                                ->required()
+                                ->suffix('m')
+                                ->minValue(0.5)
+                                ->maxValue(50)
+                                ->placeholder('4.00'),
+                            TextInput::make('length')
+                                ->label('Longueur')
+                                ->numeric()
+                                ->step(0.01)
+                                ->required()
+                                ->suffix('m')
+                                ->minValue(0.5)
+                                ->maxValue(50)
+                                ->placeholder('5.00'),
+                            TextInput::make('height')
+                                ->label('Hauteur')
+                                ->numeric()
+                                ->step(0.01)
+                                ->required()
+                                ->suffix('m')
+                                ->minValue(1.5)
+                                ->maxValue(10)
+                                ->default(2.50)
+                                ->placeholder('2.50'),
+                        ])
+                            ->label('Dimenssion')
+                            ->columns(3),
                     ]),
 
                 Section::make('Configuration du sol')
                     ->description('Apparence du sol de la pièce')
                     ->icon('heroicon-o-square-3-stack-3d')
                     ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                Select::make('floor_material')
-                                    ->label('Matériau du sol')
-                                    ->options([
-                                        'wood' => 'Parquet bois',
-                                        'laminate' => 'Stratifié',
-                                        'tile' => 'Carrelage',
-                                        'carpet' => 'Moquette',
-                                        'concrete' => 'Béton',
-                                        'marble' => 'Marbre',
-                                        'vinyl' => 'Vinyle',
-                                    ])
-                                    ->default('wood')
-                                    ->native(false)
-                                    ->searchable(),
-                                TextInput::make('floor_color')
-                                    ->label('Couleur du sol')
-                                    ->placeholder('#C4A882')
-                                    ->default('#C4A882'),
-                            ]),
+                        Select::make('floor_material')
+                            ->label('Matériau du sol')
+                            ->options([
+                                'wood' => 'Parquet bois',
+                                'laminate' => 'Stratifié',
+                                'tile' => 'Carrelage',
+                                'carpet' => 'Moquette',
+                                'concrete' => 'Béton',
+                                'marble' => 'Marbre',
+                                'vinyl' => 'Vinyle',
+                            ])
+                            ->default('wood')
+                            ->native(false)
+                            ->searchable(),
+                        TextInput::make('floor_color')
+                            ->label('Couleur du sol')
+                            ->placeholder('#C4A882')
+                            ->default('#C4A882'),
                     ])
                     ->collapsible(),
 
@@ -116,27 +120,24 @@ class RoomRelationManager extends RelationManager
                     ->description('Apparence des murs de la pièce')
                     ->icon('heroicon-o-rectangle-group')
                     ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                Select::make('wall_material')
-                                    ->label('Matériau des murs')
-                                    ->options([
-                                        'paint' => 'Peinture',
-                                        'wallpaper' => 'Papier peint',
-                                        'brick' => 'Brique',
-                                        'stone' => 'Pierre',
-                                        'wood_panel' => 'Lambris bois',
-                                        'concrete' => 'Béton',
-                                        'plaster' => 'Plâtre',
-                                    ])
-                                    ->default('paint')
-                                    ->native(false)
-                                    ->searchable(),
-                                TextInput::make('wall_color')
-                                    ->label('Couleur des murs')
-                                    ->placeholder('#FFFFFF')
-                                    ->default('#FFFFFF'),
-                            ]),
+                        Select::make('wall_material')
+                            ->label('Matériau des murs')
+                            ->options([
+                                'paint' => 'Peinture',
+                                'wallpaper' => 'Papier peint',
+                                'brick' => 'Brique',
+                                'stone' => 'Pierre',
+                                'wood_panel' => 'Lambris bois',
+                                'concrete' => 'Béton',
+                                'plaster' => 'Plâtre',
+                            ])
+                            ->default('paint')
+                            ->native(false)
+                            ->searchable(),
+                        TextInput::make('wall_color')
+                            ->label('Couleur des murs')
+                            ->placeholder('#FFFFFF')
+                            ->default('#FFFFFF'),
                     ])
                     ->collapsible(),
 
@@ -227,13 +228,15 @@ class RoomRelationManager extends RelationManager
                             ->title('Pièce configurée')
                             ->body('La configuration de la pièce a été enregistrée.')
                     )
+                    ->after(fn () => $this->dispatch('project-data-updated'))
                     ->visible(fn () => $this->ownerRecord->room === null),
             ])
             ->actions([
                 ActionGroup::make([
                     EditAction::make()
                         ->label('Modifier')
-                        ->modalHeading(fn ($record) => 'Modifier : '.$record->name),
+                        ->modalHeading(fn ($record) => 'Modifier : '.$record->name)
+                        ->after(fn () => $this->dispatch('project-data-updated')),
                     Action::make('apply_preset')
                         ->label('Appliquer un modèle')
                         ->icon('heroicon-o-rectangle-stack')
@@ -266,12 +269,15 @@ class RoomRelationManager extends RelationManager
                                 ->title('Modèle appliqué')
                                 ->success()
                                 ->send();
+
+                            $this->dispatch('project-data-updated');
                         }),
                     DeleteAction::make()
                         ->label('Supprimer la configuration')
                         ->modalHeading('Supprimer la configuration de la pièce')
                         ->modalDescription('Voulez-vous supprimer la configuration de la pièce ? Les objets du projet ne seront pas affectés, mais vous perdrez les dimensions et paramètres de la pièce.')
-                        ->modalSubmitActionLabel('Oui, supprimer'),
+                        ->modalSubmitActionLabel('Oui, supprimer')
+                        ->after(fn () => $this->dispatch('project-data-updated')),
                 ])
                     ->icon('heroicon-m-ellipsis-vertical')
                     ->tooltip('Actions'),

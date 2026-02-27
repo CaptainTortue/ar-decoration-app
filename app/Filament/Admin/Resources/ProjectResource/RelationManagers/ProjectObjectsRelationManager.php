@@ -46,6 +46,12 @@ class ProjectObjectsRelationManager extends RelationManager
         return 'Objets';
     }
 
+    // Toujours éditable, que ce soit sur la page View ou Edit
+    public function isReadOnly(): bool
+    {
+        return false;
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
@@ -176,7 +182,8 @@ class ProjectObjectsRelationManager extends RelationManager
             ->headerActions([
                 CreateAction::make()
                     ->label('Ajouter un objet')
-                    ->icon('heroicon-o-plus'),
+                    ->icon('heroicon-o-plus')
+                    ->after(fn () => $this->dispatch('project-data-updated')),
             ])
             ->actions([
                 ActionGroup::make([
@@ -197,7 +204,8 @@ class ProjectObjectsRelationManager extends RelationManager
                     DeleteAction::make()
                         ->label('Retirer')
                         ->modalHeading('Retirer l\'objet')
-                        ->modalDescription(fn ($record) => "Retirer \"{$record->furnitureObject->name}\" du projet ?"),
+                        ->modalDescription(fn ($record) => "Retirer \"{$record->furnitureObject->name}\" du projet ?")
+                        ->after(fn () => $this->dispatch('project-data-updated')),
                 ])
                 ->icon('heroicon-m-ellipsis-vertical'),
             ])
@@ -214,7 +222,8 @@ class ProjectObjectsRelationManager extends RelationManager
                         ->action(fn ($records) => $records->each(fn ($r) => $r->update(['is_visible' => false])))
                         ->deselectRecordsAfterCompletion(),
                     DeleteBulkAction::make()
-                        ->label('Retirer la sélection'),
+                        ->label('Retirer la sélection')
+                        ->after(fn () => $this->dispatch('project-data-updated')),
                 ]),
             ])
             ->emptyStateHeading('Aucun objet')

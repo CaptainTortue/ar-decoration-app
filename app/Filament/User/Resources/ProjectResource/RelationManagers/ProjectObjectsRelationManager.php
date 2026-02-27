@@ -11,17 +11,15 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Forms\Components\ColorPicker;
-use Filament\Forms\Components\Placeholder;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
-use Filament\Tables;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
@@ -32,9 +30,15 @@ class ProjectObjectsRelationManager extends RelationManager
 {
     protected static string $relationship = 'projectObjects';
 
+    // Toujours éditable, que ce soit sur la page View ou Edit
+    public function isReadOnly(): bool
+    {
+        return false;
+    }
+
     public static function getTitle($ownerRecord, string $pageClass): string
     {
-        return 'Objets du projet (' . $ownerRecord->projectObjects->count() . ')';
+        return 'Objets du projet ('.$ownerRecord->projectObjects->count().')';
     }
 
     public static function getModelLabel(): string
@@ -77,13 +81,14 @@ class ProjectObjectsRelationManager extends RelationManager
                             ->label('Informations')
                             ->content(function (Get $get) {
                                 $objectId = $get('furniture_object_id');
-                                if (!$objectId) {
+                                if (! $objectId) {
                                     return 'Sélectionnez un objet pour voir ses informations.';
                                 }
                                 $object = FurnitureObject::find($objectId);
-                                if (!$object) {
+                                if (! $object) {
                                     return '';
                                 }
+
                                 return "Dimensions: {$object->width}m × {$object->depth}m × {$object->height}m";
                             })
                             ->visible(fn (Get $get) => $get('furniture_object_id') !== null),
@@ -265,19 +270,20 @@ class ProjectObjectsRelationManager extends RelationManager
                             ->success()
                             ->title('Objet ajouté')
                             ->body('L\'objet a été ajouté au projet.')
-                    ),
+                    )
+                    ->after(fn () => $this->dispatch('project-data-updated')),
             ])
             ->actions([
                 ActionGroup::make([
                     EditAction::make()
                         ->label('Modifier')
-                        ->modalHeading(fn ($record) => 'Modifier : ' . $record->furnitureObject->name),
+                        ->modalHeading(fn ($record) => 'Modifier : '.$record->furnitureObject->name),
                     Action::make('toggle_visibility')
                         ->label(fn ($record) => $record->is_visible ? 'Masquer' : 'Afficher')
                         ->icon(fn ($record) => $record->is_visible ? 'heroicon-o-eye-slash' : 'heroicon-o-eye')
                         ->color('gray')
                         ->action(function ($record) {
-                            $record->update(['is_visible' => !$record->is_visible]);
+                            $record->update(['is_visible' => ! $record->is_visible]);
                             Notification::make()
                                 ->title($record->is_visible ? 'Objet visible' : 'Objet masqué')
                                 ->success()
@@ -288,7 +294,7 @@ class ProjectObjectsRelationManager extends RelationManager
                         ->icon(fn ($record) => $record->is_locked ? 'heroicon-o-lock-open' : 'heroicon-o-lock-closed')
                         ->color('warning')
                         ->action(function ($record) {
-                            $record->update(['is_locked' => !$record->is_locked]);
+                            $record->update(['is_locked' => ! $record->is_locked]);
                             Notification::make()
                                 ->title($record->is_locked ? 'Objet verrouillé' : 'Objet déverrouillé')
                                 ->success()
@@ -322,10 +328,11 @@ class ProjectObjectsRelationManager extends RelationManager
                         ->label('Retirer du projet')
                         ->modalHeading('Retirer l\'objet du projet')
                         ->modalDescription(fn ($record) => "Voulez-vous retirer \"{$record->furnitureObject->name}\" du projet ? Cette action ne supprime pas l'objet du catalogue, seulement son placement dans ce projet.")
-                        ->modalSubmitActionLabel('Oui, retirer'),
+                        ->modalSubmitActionLabel('Oui, retirer')
+                        ->after(fn () => $this->dispatch('project-data-updated')),
                 ])
-                ->icon('heroicon-m-ellipsis-vertical')
-                ->tooltip('Actions'),
+                    ->icon('heroicon-m-ellipsis-vertical')
+                    ->tooltip('Actions'),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
@@ -333,10 +340,10 @@ class ProjectObjectsRelationManager extends RelationManager
                         ->label('Basculer la visibilité')
                         ->icon('heroicon-o-eye')
                         ->action(function ($records) {
-                            $records->each(fn ($record) => $record->update(['is_visible' => !$record->is_visible]));
+                            $records->each(fn ($record) => $record->update(['is_visible' => ! $record->is_visible]));
                             Notification::make()
                                 ->title('Visibilité modifiée')
-                                ->body(count($records) . ' objet(s) mis à jour.')
+                                ->body(count($records).' objet(s) mis à jour.')
                                 ->success()
                                 ->send();
                         })
@@ -367,7 +374,8 @@ class ProjectObjectsRelationManager extends RelationManager
                         ->label('Retirer du projet')
                         ->modalHeading('Retirer les objets sélectionnés')
                         ->modalDescription('Voulez-vous retirer les objets sélectionnés du projet ? Cette action est irréversible.')
-                        ->modalSubmitActionLabel('Oui, retirer'),
+                        ->modalSubmitActionLabel('Oui, retirer')
+                        ->after(fn () => $this->dispatch('project-data-updated')),
                 ]),
             ])
             ->emptyStateHeading('Aucun objet dans ce projet')

@@ -8,10 +8,23 @@ use Filament\Actions;
 use Filament\Forms\Components\Select;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use Livewire\Attributes\On;
 
 class ViewProject extends ViewRecord
 {
     protected static string $resource = ProjectResource::class;
+
+    /**
+     * Écoute les événements émis par les RelationManagers (Room, ProjectObjects)
+     * après chaque création / modification / suppression.
+     * Recharge le record depuis la DB pour que getSubheading() ait des données fraîches.
+     */
+    #[On('project-data-updated')]
+    public function refreshProjectData(): void
+    {
+        $this->record->refresh();
+        $this->record->load('room', 'projectObjects', 'user');
+    }
 
     public function getTitle(): string
     {

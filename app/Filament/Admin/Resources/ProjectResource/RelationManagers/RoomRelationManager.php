@@ -10,9 +10,9 @@ use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Components\FusedGroup;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -30,118 +30,139 @@ class RoomRelationManager extends RelationManager
         return 'Pièce';
     }
 
+    // Toujours éditable, que ce soit sur la page View ou Edit
+    public function isReadOnly(): bool
+    {
+        return false;
+    }
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Section::make('Informations')
+                Section::make('Informations de base')
+                    ->description('Donnez un nom à votre pièce')
                     ->icon('heroicon-o-home')
                     ->schema([
                         TextInput::make('name')
                             ->label('Nom de la pièce')
+                            ->placeholder('Ex: Salon, Chambre, Bureau...')
                             ->required()
                             ->maxLength(255),
                     ]),
 
-                Section::make('Dimensions')
+                Section::make('Dimensions de la pièce')
+                    ->description('Définissez les dimensions en mètres')
                     ->icon('heroicon-o-arrows-pointing-out')
                     ->schema([
-                        Grid::make(3)
-                            ->schema([
-                                TextInput::make('width')
-                                    ->label('Largeur')
-                                    ->numeric()
-                                    ->step(0.01)
-                                    ->required()
-                                    ->suffix('m')
-                                    ->minValue(0.5)
-                                    ->maxValue(50),
-                                TextInput::make('length')
-                                    ->label('Longueur')
-                                    ->numeric()
-                                    ->step(0.01)
-                                    ->required()
-                                    ->suffix('m')
-                                    ->minValue(0.5)
-                                    ->maxValue(50),
-                                TextInput::make('height')
-                                    ->label('Hauteur')
-                                    ->numeric()
-                                    ->step(0.01)
-                                    ->required()
-                                    ->suffix('m')
-                                    ->minValue(1.5)
-                                    ->maxValue(10)
-                                    ->default(2.50),
-                            ]),
+                        FusedGroup::make([
+                            TextInput::make('width')
+                                ->label('Largeur')
+                                ->numeric()
+                                ->step(0.01)
+                                ->required()
+                                ->suffix('m')
+                                ->minValue(0.5)
+                                ->maxValue(50)
+                                ->placeholder('4.00'),
+                            TextInput::make('length')
+                                ->label('Longueur')
+                                ->numeric()
+                                ->step(0.01)
+                                ->required()
+                                ->suffix('m')
+                                ->minValue(0.5)
+                                ->maxValue(50)
+                                ->placeholder('5.00'),
+                            TextInput::make('height')
+                                ->label('Hauteur')
+                                ->numeric()
+                                ->step(0.01)
+                                ->required()
+                                ->suffix('m')
+                                ->minValue(1.5)
+                                ->maxValue(10)
+                                ->default(2.50)
+                                ->placeholder('2.50'),
+                        ])
+                            ->label('Dimenssion')
+                            ->columns(3),
                     ]),
 
-                Section::make('Sol')
+                Section::make('Configuration du sol')
+                    ->description('Apparence du sol de la pièce')
                     ->icon('heroicon-o-square-3-stack-3d')
                     ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                Select::make('floor_material')
-                                    ->label('Matériau')
-                                    ->options([
-                                        'wood' => 'Parquet bois',
-                                        'laminate' => 'Stratifié',
-                                        'tile' => 'Carrelage',
-                                        'carpet' => 'Moquette',
-                                        'concrete' => 'Béton',
-                                        'marble' => 'Marbre',
-                                        'vinyl' => 'Vinyle',
-                                    ])
-                                    ->default('wood')
-                                    ->native(false),
-                                TextInput::make('floor_color')
-                                    ->label('Couleur')
-                                    ->default('#C4A882'),
-                            ]),
+                        Select::make('floor_material')
+                            ->label('Matériau du sol')
+                            ->options([
+                                'wood' => 'Parquet bois',
+                                'laminate' => 'Stratifié',
+                                'tile' => 'Carrelage',
+                                'carpet' => 'Moquette',
+                                'concrete' => 'Béton',
+                                'marble' => 'Marbre',
+                                'vinyl' => 'Vinyle',
+                            ])
+                            ->default('wood')
+                            ->native(false)
+                            ->searchable(),
+                        TextInput::make('floor_color')
+                            ->label('Couleur du sol')
+                            ->placeholder('#C4A882')
+                            ->default('#C4A882'),
                     ])
                     ->collapsible(),
 
-                Section::make('Murs')
+                Section::make('Configuration des murs')
+                    ->description('Apparence des murs de la pièce')
                     ->icon('heroicon-o-rectangle-group')
                     ->schema([
-                        Grid::make(2)
-                            ->schema([
-                                Select::make('wall_material')
-                                    ->label('Matériau')
-                                    ->options([
-                                        'paint' => 'Peinture',
-                                        'wallpaper' => 'Papier peint',
-                                        'brick' => 'Brique',
-                                        'stone' => 'Pierre',
-                                        'wood_panel' => 'Lambris bois',
-                                        'concrete' => 'Béton',
-                                        'plaster' => 'Plâtre',
-                                    ])
-                                    ->default('paint')
-                                    ->native(false),
-                                TextInput::make('wall_color')
-                                    ->label('Couleur')
-                                    ->default('#FFFFFF'),
-                            ]),
+                        Select::make('wall_material')
+                            ->label('Matériau des murs')
+                            ->options([
+                                'paint' => 'Peinture',
+                                'wallpaper' => 'Papier peint',
+                                'brick' => 'Brique',
+                                'stone' => 'Pierre',
+                                'wood_panel' => 'Lambris bois',
+                                'concrete' => 'Béton',
+                                'plaster' => 'Plâtre',
+                            ])
+                            ->default('paint')
+                            ->native(false)
+                            ->searchable(),
+                        TextInput::make('wall_color')
+                            ->label('Couleur des murs')
+                            ->placeholder('#FFFFFF')
+                            ->default('#FFFFFF'),
                     ])
                     ->collapsible(),
 
-                Section::make('Éclairage')
+                Section::make('Paramètres d\'éclairage')
+                    ->description('Configuration avancée de l\'éclairage de la scène')
                     ->icon('heroicon-o-light-bulb')
                     ->schema([
                         KeyValue::make('lighting_settings')
                             ->label('')
                             ->keyLabel('Paramètre')
                             ->valueLabel('Valeur')
-                            ->addActionLabel('Ajouter')
-                            ->reorderable(),
+                            ->addActionLabel('Ajouter un paramètre')
+                            ->keyPlaceholder('Ex: ambient_intensity')
+                            ->valuePlaceholder('Ex: 0.5')
+                            ->reorderable()
+                            ->default([
+                                'ambient_intensity' => '0.5',
+                                'directional_intensity' => '0.8',
+                                'shadow_enabled' => 'true',
+                            ]),
                     ])
                     ->collapsed()
                     ->collapsible(),
             ]);
     }
 
-    public function table(Table $table): Table
+    final public function table(Table $table): Table
     {
         return $table
             ->recordTitleAttribute('name')
