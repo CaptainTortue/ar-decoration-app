@@ -3,6 +3,11 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+// Documentation API
+Route::get('/docs', function () {
+    return view('docs');
+})->name('docs');
+
 // Page d'accueil — landing page
 Route::get('/', function () {
     // Si l'utilisateur est déjà connecté, rediriger vers le bon panel

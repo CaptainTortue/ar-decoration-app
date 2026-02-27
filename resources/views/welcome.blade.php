@@ -86,6 +86,10 @@
 
                 <!-- Actions -->
                 <div class="flex items-center gap-2">
+                    <a href="/docs"
+                       class="hidden md:inline-flex text-slate-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors hover:bg-white/5">
+                        Documentation
+                    </a>
                     <a href="/dashboard/login"
                        class="hidden sm:inline-flex text-slate-300 hover:text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors hover:bg-white/5">
                         Connexion
